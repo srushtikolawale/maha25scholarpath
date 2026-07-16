@@ -232,7 +232,7 @@ def send_otp():
         )
 
         sg = SendGridAPIClient(
-            os.environ.get("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")
+            os.environ.get("SENDGRID_API_KEY")
         )
 
         response = sg.send(message)
