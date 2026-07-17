@@ -231,8 +231,15 @@ def send_otp():
             plain_text_content=f"Your OTP is: {otp}"
         )
 
-        sg = SendGridAPIClient(
-            os.environ.get("SENDGRID_API_KEY")
+        api_key = os.environ.get("SENDGRID_API_KEY")
+
+print("API Key Exists:", api_key is not None)
+
+if api_key:
+    print("Starts with SG:", api_key.startswith("SG."))
+    print("Key Length:", len(api_key))
+
+sg = SendGridAPIClient(api_key)
         )
 
         response = sg.send(message)
