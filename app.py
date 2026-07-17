@@ -240,7 +240,7 @@ if api_key:
     print("Key Length:", len(api_key))
 
 sg = SendGridAPIClient(api_key)
-        )
+        
 
         response = sg.send(message)
 
