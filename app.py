@@ -202,6 +202,7 @@ def all_users():
     return result
 
 # ---------------- SEND OTP ----------------
+# ---------------- SEND OTP ----------------
 @app.route("/send_otp", methods=["POST"])
 def send_otp():
 
@@ -224,6 +225,15 @@ def send_otp():
 
     try:
 
+        api_key = os.environ.get("SENDGRID_API_KEY")
+
+        print("========== SENDGRID DEBUG ==========")
+        print("API Key Exists:", api_key is not None)
+
+        if api_key:
+            print("Starts with SG:", api_key.startswith("SG."))
+            print("Key Length:", len(api_key))
+
         message = Mail(
             from_email="maha25scholarpath.noreply@gmail.com",
             to_emails=email,
@@ -231,16 +241,7 @@ def send_otp():
             plain_text_content=f"Your OTP is: {otp}"
         )
 
-        api_key = os.environ.get("SENDGRID_API_KEY")
-
-print("API Key Exists:", api_key is not None)
-
-if api_key:
-    print("Starts with SG:", api_key.startswith("SG."))
-    print("Key Length:", len(api_key))
-
-sg = SendGridAPIClient(api_key)
-        
+        sg = SendGridAPIClient(api_key)
 
         response = sg.send(message)
 
@@ -251,7 +252,6 @@ sg = SendGridAPIClient(api_key)
     except Exception as e:
         print("SENDGRID ERROR:", repr(e))
         return "Failed to send OTP"
-
 
 # ---------------- VERIFY OTP ----------------
 @app.route("/verify_otp", methods=["POST"])
