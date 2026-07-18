@@ -7,4 +7,4 @@ Flask-Mail
 mysql-connector-python
 sendgrid
 requests
-
+sib-api-v3-sdk
