@@ -299,7 +299,7 @@ def send_otp():
 
          print(e)
 
-        return "Failed to send OTP"
+         return "Failed to send OTP"
 # ---------------- VERIFY OTP ----------------
 @app.route("/verify_otp", methods=["POST"])
 def verify_otp():
