@@ -116,7 +116,7 @@ def send_email_brevo(to_email, otp):
 
         print(response)
 
-       print("OTP email sent successfully")
+        print("OTP email sent successfully")
 
     except ApiException as e:
         print("BREVO ERROR")
