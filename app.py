@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
-from flask_mail import Mail, Message
+
 from datetime import datetime
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
@@ -48,14 +48,6 @@ app.config["SESSION_PERMANENT"] = True
 app.secret_key = os.environ.get("SECRET_KEY", "dev_secret")
 
 # ---------------- GMAIL CONFIG ----------------
-app.config["MAIL_SERVER"] = "smtp.gmail.com"
-app.config["MAIL_PORT"] = 587
-app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USE_SSL"] = False
-app.config["MAIL_USERNAME"] = "maha25scholarpath.noreply@gmail.com"
-app.config["MAIL_TIMEOUT"] = 10
-app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
-app.config["MAIL_DEFAULT_SENDER"] = "maha25scholarpath.noreply@gmail.com"
 
 mail = Mail(app)
 
@@ -282,7 +274,6 @@ def all_users():
     return result
 
 # ---------------- SEND OTP ----------------
-# ---------------- SEND OTP ----------------
 @app.route("/send_otp", methods=["POST"])
 def send_otp():
 
@@ -305,45 +296,15 @@ def send_otp():
 
     try:
 
-        msg = Message(
-            subject="OTP Verification - Maha25 ScholarPath",
-            recipients=[email]
-        )
-
-        msg.body = f"""
-Hello,
-
-Welcome to Maha25 ScholarPath.
-
-Your OTP for email verification is:
-
-{otp}
-
-This OTP is valid for 5 minutes.
-
-Please do not share this OTP with anyone.
-
-Regards,
-Maha25 ScholarPath
-"""
-
-        print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
-        print(
-            "MAIL_PASSWORD EXISTS:",
-            app.config["MAIL_PASSWORD"] is not None
-        )
-
-       
         send_email_brevo(email, otp)
 
         print("OTP email sent successfully.")
 
         return "OTP sent successfully"
 
-
     except Exception as e:
 
-        print("MAIL ERROR:", e)
+        print("BREVO ERROR:", e)
 
         return "Failed to send OTP"
 # ---------------- VERIFY OTP ----------------
