@@ -263,22 +263,7 @@ Maha25 ScholarPath
             app.config["MAIL_PASSWORD"] is not None
         )
 
-        import smtplib
-
-        print("Testing SMTP connection...")
-
-        server = smtplib.SMTP(
-            "smtp.gmail.com",
-            587,
-            timeout=10
-        )
-
-        server.starttls()
-
-        print("SMTP Connected")
-
-        server.quit()
-
+       
         mail.send(msg)
 
         print("OTP email sent successfully.")
