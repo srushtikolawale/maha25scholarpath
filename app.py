@@ -49,7 +49,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev_secret")
 
 # ---------------- GMAIL CONFIG ----------------
 
-mail = Mail(app)
+
 
 # IMPORTANT FOR RENDER
 with app.app_context():
@@ -112,11 +112,18 @@ def send_email_brevo(to_email, otp):
     """
 
     try:
-        api_instance.send_transac_email(email)
-        print("OTP email sent successfully")
+        response = api_instance.send_transac_email(email)
+
+        print(response)
+
+       print("OTP email sent successfully")
 
     except ApiException as e:
-        print("Brevo Error:", e)
+        print("BREVO ERROR")
+
+        print(e)
+
+        raise
 
 
 # ---------------- HOME ----------------
@@ -149,21 +156,7 @@ def set_language(lang):
 
 
 # ---------------- LOGIN ----------------
-@app.route("/test_mail")
-def test_mail():
 
-    import socket
-
-    try:
-        socket.create_connection(
-            ("smtp.gmail.com", 465),
-            timeout=5
-        )
-
-        return "SMTP connection successful"
-
-    except Exception as e:
-        return str(e)
 # ---------------- LOGIN ----------------
 @app.route("/login", methods=["POST"])
 def login():
@@ -298,13 +291,13 @@ def send_otp():
 
         send_email_brevo(email, otp)
 
-        print("OTP email sent successfully.")
+        
 
         return "OTP sent successfully"
 
     except Exception as e:
 
-        print("BREVO ERROR:", e)
+         print(e)
 
         return "Failed to send OTP"
 # ---------------- VERIFY OTP ----------------
