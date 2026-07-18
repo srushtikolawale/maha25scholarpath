@@ -232,8 +232,7 @@ def send_otp():
         "otp": otp,
         "time": time.time()
     }
-
-       try:
+    try:
 
         msg = Message(
             subject="OTP Verification - Maha25 ScholarPath",
