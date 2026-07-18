@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, redirect, session
 from flask_mail import Mail, Message
 from datetime import datetime
-
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
+import os
 import sqlite3
 import pandas as pd
 import random
@@ -71,6 +73,58 @@ OTP_EXPIRY = 300
 # ---------------- VALID EMAIL ----------------
 def valid_email(email):
     return re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email)
+
+
+def send_email_brevo(to_email, otp):
+
+    configuration = sib_api_v3_sdk.Configuration()
+
+    configuration.api_key['api-key'] = os.environ.get(
+        "BREVO_API_KEY"
+    )
+
+    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+        sib_api_v3_sdk.ApiClient(configuration)
+    )
+
+    email = sib_api_v3_sdk.SendSmtpEmail()
+
+    email.sender = {
+        "name": "Maha25 ScholarPath",
+        "email": "maha25scholarpath.noreply@gmail.com"
+    }
+
+    email.to = [
+        {
+            "email": to_email
+        }
+    ]
+
+    email.subject = "OTP Verification - Maha25 ScholarPath"
+
+    email.html_content = f"""
+    <h3>Welcome to Maha25 ScholarPath</h3>
+
+    <p>Your OTP for email verification is:</p>
+
+    <h2>{otp}</h2>
+
+    <p>This OTP is valid for 5 minutes.</p>
+
+    <p>Please do not share this OTP.</p>
+
+    <br>
+
+    <p>Regards,<br>
+    Maha25 ScholarPath</p>
+    """
+
+    try:
+        api_instance.send_transac_email(email)
+        print("OTP email sent successfully")
+
+    except ApiException as e:
+        print("Brevo Error:", e)
 
 
 # ---------------- HOME ----------------
