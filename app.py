@@ -233,7 +233,7 @@ def send_otp():
         "time": time.time()
     }
 
-    try:
+       try:
 
         msg = Message(
             subject="OTP Verification - Maha25 ScholarPath",
@@ -256,8 +256,10 @@ Please do not share this OTP with anyone.
 Regards,
 Maha25 ScholarPath
 """
-    print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
-    print("MAIL_PASSWORD EXISTS:", app.config["MAIL_PASSWORD"] is not None)
+
+        print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
+        print("MAIL_PASSWORD EXISTS:", app.config["MAIL_PASSWORD"] is not None)
+
         mail.send(msg)
 
         print("OTP email sent successfully.")
