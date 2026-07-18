@@ -232,14 +232,15 @@ def send_otp():
         "otp": otp,
         "time": time.time()
     }
-  try:
 
-    msg = Message(
-        subject="OTP Verification - Maha25 ScholarPath",
-        recipients=[email]
-    )
+    try:
 
-    msg.body = f"""
+        msg = Message(
+            subject="OTP Verification - Maha25 ScholarPath",
+            recipients=[email]
+        )
+
+        msg.body = f"""
 Hello,
 
 Welcome to Maha25 ScholarPath.
@@ -256,35 +257,40 @@ Regards,
 Maha25 ScholarPath
 """
 
-    print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
-    print("MAIL_PASSWORD EXISTS:", app.config["MAIL_PASSWORD"] is not None)
+        print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
+        print(
+            "MAIL_PASSWORD EXISTS:",
+            app.config["MAIL_PASSWORD"] is not None
+        )
 
-    import smtplib
+        import smtplib
 
-    print("Testing SMTP connection...")
+        print("Testing SMTP connection...")
 
-    server = smtplib.SMTP("smtp.gmail.com", 587, timeout=10)
-    server.starttls()
+        server = smtplib.SMTP(
+            "smtp.gmail.com",
+            587,
+            timeout=10
+        )
 
-    print("SMTP Connected")
+        server.starttls()
 
-    server.quit()
+        print("SMTP Connected")
 
-    mail.send(msg)
+        server.quit()
 
-    print("OTP email sent successfully.")
+        mail.send(msg)
 
-    return "OTP sent successfully"
+        print("OTP email sent successfully.")
 
-
-except Exception as e:
-
-    print("MAIL ERROR:", e)
-
-    return "Failed to send OTP"
+        return "OTP sent successfully"
 
 
+    except Exception as e:
 
+        print("MAIL ERROR:", e)
+
+        return "Failed to send OTP"
 # ---------------- VERIFY OTP ----------------
 @app.route("/verify_otp", methods=["POST"])
 def verify_otp():
