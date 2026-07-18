@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from flask_mail import Mail, Message
 from datetime import datetime
 
 import sqlite3
@@ -45,6 +44,17 @@ app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = True
 
 app.secret_key = os.environ.get("SECRET_KEY", "dev_secret")
+
+# ---------------- GMAIL CONFIG ----------------
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USE_SSL"] = False
+app.config["MAIL_USERNAME"] = "maha25scholarpath.noreply@gmail.com"
+app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD")
+app.config["MAIL_DEFAULT_SENDER"] = "maha25scholarpath.noreply@gmail.com"
+
+mail = Mail(app)
 
 # IMPORTANT FOR RENDER
 with app.app_context():
@@ -225,34 +235,39 @@ def send_otp():
 
     try:
 
-        api_key = os.environ.get("SENDGRID_API_KEY")
-
-        print("========== SENDGRID DEBUG ==========")
-        print("API Key Exists:", api_key is not None)
-
-        if api_key:
-            print("Starts with SG:", api_key.startswith("SG."))
-            print("Key Length:", len(api_key))
-
-        message = Mail(
-            from_email="maha25scholarpath.noreply@gmail.com",
-            to_emails=email,
+        msg = Message(
             subject="OTP Verification - Maha25 ScholarPath",
-            plain_text_content=f"Your OTP is: {otp}"
+            recipients=[email]
         )
 
-        sg = SendGridAPIClient(api_key)
+        msg.body = f"""
+Hello,
 
-        response = sg.send(message)
+Welcome to Maha25 ScholarPath.
 
-        print("SENDGRID STATUS:", response.status_code)
+Your OTP for email verification is:
+
+{otp}
+
+This OTP is valid for 5 minutes.
+
+Please do not share this OTP with anyone.
+
+Regards,
+Maha25 ScholarPath
+"""
+
+        mail.send(msg)
+
+        print("OTP email sent successfully.")
 
         return "OTP sent successfully"
 
     except Exception as e:
-        print("SENDGRID ERROR:", repr(e))
-        return "Failed to send OTP"
 
+        print("MAIL ERROR:", e)
+
+        return "Failed to send OTP"
 # ---------------- VERIFY OTP ----------------
 @app.route("/verify_otp", methods=["POST"])
 def verify_otp():
