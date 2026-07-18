@@ -259,10 +259,18 @@ Maha25 ScholarPath
         print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
         print("MAIL_PASSWORD EXISTS:", app.config["MAIL_PASSWORD"] is not None)
 
-        mail.send(msg)
+        import smtplib
 
-        print("OTP email sent successfully.")
+        print("Testing SMTP connection...")
 
+       server = smtplib.SMTP("smtp.gmail.com", 587, timeout=10)
+       server.starttls()
+       print("SMTP Connected")
+       server.quit()
+
+       mail.send(msg)
+
+       print("OTP email sent successfully.")
         return "OTP sent successfully"
 
     except Exception as e:
