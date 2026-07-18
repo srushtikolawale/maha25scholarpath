@@ -334,7 +334,7 @@ Maha25 ScholarPath
         )
 
        
-        mail.send(msg)
+        send_email_brevo(email, otp)
 
         print("OTP email sent successfully.")
 
