@@ -234,12 +234,12 @@ def send_otp():
     }
     try:
 
-        msg = Message(
-            subject="OTP Verification - Maha25 ScholarPath",
-            recipients=[email]
-        )
+    msg = Message(
+        subject="OTP Verification - Maha25 ScholarPath",
+        recipients=[email]
+    )
 
-        msg.body = f"""
+    msg.body = f"""
 Hello,
 
 Welcome to Maha25 ScholarPath.
@@ -256,28 +256,35 @@ Regards,
 Maha25 ScholarPath
 """
 
-        print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
-        print("MAIL_PASSWORD EXISTS:", app.config["MAIL_PASSWORD"] is not None)
+    print("MAIL_USERNAME:", app.config["MAIL_USERNAME"])
+    print("MAIL_PASSWORD EXISTS:", app.config["MAIL_PASSWORD"] is not None)
 
-        import smtplib
+    import smtplib
 
-        print("Testing SMTP connection...")
+    print("Testing SMTP connection...")
 
-       server = smtplib.SMTP("smtp.gmail.com", 587, timeout=10)
-       server.starttls()
-       print("SMTP Connected")
-       server.quit()
+    server = smtplib.SMTP("smtp.gmail.com", 587, timeout=10)
+    server.starttls()
 
-       mail.send(msg)
+    print("SMTP Connected")
 
-       print("OTP email sent successfully.")
-        return "OTP sent successfully"
+    server.quit()
 
-    except Exception as e:
+    mail.send(msg)
 
-        print("MAIL ERROR:", e)
+    print("OTP email sent successfully.")
 
-        return "Failed to send OTP"
+    return "OTP sent successfully"
+
+
+except Exception as e:
+
+    print("MAIL ERROR:", e)
+
+    return "Failed to send OTP"
+
+
+
 # ---------------- VERIFY OTP ----------------
 @app.route("/verify_otp", methods=["POST"])
 def verify_otp():
