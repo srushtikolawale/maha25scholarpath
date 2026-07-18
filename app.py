@@ -103,6 +103,21 @@ def set_language(lang):
 
 
 # ---------------- LOGIN ----------------
+@app.route("/test_mail")
+def test_mail():
+
+    import socket
+
+    try:
+        socket.create_connection(
+            ("smtp.gmail.com", 465),
+            timeout=5
+        )
+
+        return "SMTP connection successful"
+
+    except Exception as e:
+        return str(e)
 # ---------------- LOGIN ----------------
 @app.route("/login", methods=["POST"])
 def login():
