@@ -8,3 +8,4 @@ mysql-connector-python
 sendgrid
 requests
 sib-api-v3-sdk
+psycopg2-binary
