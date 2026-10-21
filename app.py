@@ -83,7 +83,7 @@ def send_email_brevo(to_email, otp):
 
     email.sender = {
         "name": "Maha25 ScholarPath",
-        "email": "maha25scholarpath.noreply@gmail.com"
+        "email": "srushtikolawale07@gmail.com"
     }
 
     email.to = [
