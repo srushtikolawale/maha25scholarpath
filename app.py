@@ -68,6 +68,54 @@ def init_db():
         conn.close()
 
 
+def import_scholarships():
+    """Import the CSV only when the PostgreSQL table is empty."""
+    conn = get_db()
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) AS total FROM scholarships")
+            if cur.fetchone()["total"] > 0:
+                logging.info("Scholarship table already contains data.")
+                return
+
+        df = pd.read_csv("dataset.csv")
+        df = df.where(pd.notna(df), None)
+
+        with conn.cursor() as cur:
+            for _, row in df.iterrows():
+                cur.execute(
+                    """
+                    INSERT INTO scholarships (
+                        name_of_scheme, gender, caste,
+                        annual_income, educational_qualification,
+                        required_documents, link, deadline
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (name_of_scheme) DO NOTHING
+                    """,
+                    (
+                        row["name_of_scheme"],
+                        row["gender"],
+                        row["caste"],
+                        row["annual_income"],
+                        row["educational_qualification"],
+                        row["required_documents"],
+                        row["link"],
+                        row["deadline"],
+                    ),
+                )
+
+        conn.commit()
+        logging.info("Scholarship CSV import completed.")
+
+    except Exception:
+        conn.rollback()
+        logging.exception("Scholarship CSV import failed")
+        raise
+    finally:
+        conn.close()
+
 
 
 # ---------------- APP ----------------
@@ -83,6 +131,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev_secret")
 # IMPORTANT FOR RENDER
 with app.app_context():
     init_db()
+    import_scholarships()
 
 
 # ---------------- OTP STORAGE ----------------
