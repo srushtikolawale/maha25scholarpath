@@ -295,7 +295,7 @@ def register():
         return "Invalid OTP"
 
         try:
-        db = get_db()
+         db = get_db()
 
         try:
             with db.cursor() as cur:
