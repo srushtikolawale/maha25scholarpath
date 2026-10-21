@@ -242,7 +242,7 @@ def login():
     email = request.form["email"].strip().lower()
     password = request.form["password"].strip()
 
-       conn = get_db()
+    conn = get_db()
 
     try:
         with conn.cursor() as cur:
