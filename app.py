@@ -269,13 +269,13 @@ def login():
 
     return "Invalid login"
 # ---------------- REGISTER ----------------
+
 @app.route("/register", methods=["POST"])
 def register():
-
-    name = request.form.get("name").strip()
-    email = request.form.get("email").strip().lower()
-    password = request.form.get("password").strip()
-    otp = request.form.get("otp").strip()
+    name = (request.form.get("name") or "").strip()
+    email = (request.form.get("email") or "").strip().lower()
+    password = (request.form.get("password") or "").strip()
+    otp = (request.form.get("otp") or "").strip()
 
     if not name or not email or not password or not otp:
         return "Missing fields"
@@ -285,52 +285,49 @@ def register():
     if not data:
         return "Please request OTP first"
 
-    # OTP expiry check
+    # Check OTP expiry
     if time.time() - data["time"] > OTP_EXPIRY:
         otp_storage.pop(email, None)
         return "OTP expired"
 
-    # OTP verification
+    # Verify OTP
     if data["otp"] != otp:
         return "Invalid OTP"
 
-        try:
-         db = get_db()
+    db = get_db()
 
-        try:
-            with db.cursor() as cur:
-                cur.execute(
-                    """
-                    INSERT INTO users (name, email, password)
-                    VALUES (%s, %s, %s)
-                    """,
-                    (name, email, password)
-                )
+    try:
+        with db.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO users (name, email, password)
+                VALUES (%s, %s, %s)
+                """,
+                (name, email, password)
+            )
 
-            db.commit()
-        finally:
-            db.close()
-
+        db.commit()
         otp_storage.pop(email, None)
         return redirect("/home")
 
     except psycopg2.IntegrityError:
+        db.rollback()
         return "Email already registered"
 
-    except Exception as e:
+    except Exception:
+        db.rollback()
         logging.exception("REGISTER ERROR")
         return "Registration failed"
 
-    except Exception as e:
-        print("REGISTER ERROR:", e)
-        return "Registration failed"
+    finally:
+        db.close()
 
 
 @app.route("/all_users")
 def all_users():
-
     db = get_db()
-     try:
+
+    try:
         with db.cursor() as cur:
             cur.execute("SELECT id, name, email FROM users")
             users = cur.fetchall()
@@ -349,7 +346,6 @@ def all_users():
         """
 
     return result
-
 # ---------------- SEND OTP ----------------
 @app.route("/send_otp", methods=["POST"])
 def send_otp():
