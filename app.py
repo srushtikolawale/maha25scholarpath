@@ -411,6 +411,7 @@ def verify_otp():
 
 
 # ---------------- SEARCH ----------------
+
 @app.route("/search", methods=["POST"])
 def search():
 
@@ -421,25 +422,27 @@ def search():
     income = int(request.form["income"])
     age = int(request.form["age"])
 
+    # CHECK AGE
     if age > 25:
-
         return render_template(
             "output.html",
             schemes=[],
             message="Only users aged 25 or below allowed"
         )
 
-    # READ CSV
-        # READ SCHOLARSHIPS FROM POSTGRESQL
+    # READ SCHOLARSHIPS FROM POSTGRESQL
     try:
         conn = get_db()
 
         try:
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM scholarships ORDER BY id")
+                cur.execute(
+                    "SELECT * FROM scholarships ORDER BY id"
+                )
                 rows = cur.fetchall()
 
             df = pd.DataFrame(rows)
+
         finally:
             conn.close()
 
@@ -453,13 +456,15 @@ def search():
     except Exception:
         logging.exception("PostgreSQL scholarship read failed")
         return "Unable to load scholarship data", 500
+
     # CHECK ELIGIBILITY
+    eligible = []
+
     for _, row in df.iterrows():
-
         try:
+            scheme_caste = str(row["caste"]).lower().strip()
+            scheme_gender = str(row["gender"]).lower().strip()
 
-            scheme_caste = str(row["caste"]).lower()
-            scheme_gender = str(row["gender"]).lower()
             scheme_income = int(row["annual_income"])
 
             if (
@@ -469,32 +474,33 @@ def search():
             ):
 
                 # DEADLINE CHECK
-                deadline_str = str(row["deadline"])
+                deadline_str = str(row["deadline"]).strip()
 
-                try:
+                if deadline_str.lower() in [
+                    "nan", "none", "", "nat"
+                ]:
+                    days_left = None
+                    status = "unknown"
 
-                    deadline_date = datetime.strptime(
-                        deadline_str,
-                        "%Y-%m-%d"
-                    )
+                else:
+                    try:
+                        deadline_date = datetime.strptime(
+                            deadline_str,
+                            "%Y-%m-%d"
+                        ).date()
 
-                    today = datetime.today()
+                        today = datetime.today().date()
+                        days_left = (deadline_date - today).days
 
-                    days_left = (
-                        deadline_date - today
-                    ).days
+                        if days_left < 0:
+                            status = "closed"
+                        else:
+                            status = "open"
 
-                    if days_left < 0:
-                        status = "closed"
-                    else:
-                        status = "open"
-
-                except Exception as e:
-
-                    print("DATE ERROR:", e)
-
-                    days_left = 0
-                    status = "open"
+                    except (ValueError, TypeError):
+                        print("DATE ERROR:", deadline_str)
+                        days_left = None
+                        status = "unknown"
 
                 # STORE SCHEME
                 scheme_data = {
@@ -502,8 +508,10 @@ def search():
                     "gender": row["gender"],
                     "caste": row["caste"],
                     "annual_income": row["annual_income"],
-                    "educational_qualification": row["educational_qualification"],
-                    "required_documents": row["required_documents"],
+                    "educational_qualification":
+                        row["educational_qualification"],
+                    "required_documents":
+                        row["required_documents"],
                     "link": row["link"],
                     "deadline": row["deadline"]
                 }
@@ -512,14 +520,14 @@ def search():
                     (scheme_data, days_left, status)
                 )
 
-        except Exception as e:
-
-            print("SEARCH ERROR:", e)
+        except Exception:
+            logging.exception("SEARCH ERROR")
 
     return render_template(
         "output.html",
         schemes=eligible
     )
+
 # ---------------- RUN ----------------
 if __name__ == "__main__":
 
